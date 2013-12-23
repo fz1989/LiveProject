@@ -12,25 +12,21 @@ def get_video_url(task_id):
     '''
         return merge video url
     '''
-    url = HOST_NAME + "livedownload/" + task_id + ".mp4"
+    url = HOST_NAME + "/livedownload/" + task_id + ".mp4"
     return url
 
 def _get_video(task_id, start_time, end_time, port_id):
     '''
         merge video
     '''
-    dir_path = ROOT_PATH + \
-               "\\" + start_time[0:4] + \
-               "\\" + start_time[4:6] + \
-               "\\" + start_time[6:8] + \
-               "\\" + port_id + "\\"
 
-    video_files = _find_video(start_time, end_time, port_id)
+    video_files = find_videos(start_time, end_time, port_id)
     merge_list = []
 
     sql = ("insert into task values('%s', '%s')") % (task_id, "None")
     CUR.execute(sql)
     CON.commit()
+
     len_video_files = len(video_files)
     if len_video_files == 1:
         single = True
@@ -41,24 +37,27 @@ def _get_video(task_id, start_time, end_time, port_id):
                                       start_time,
                                       end_time,
                                       single=single)
-    merge_list.append(_slice_video(dir_path + video_files[0],
+    first_file = get_full_filename(video_files[0], port_id)
+    merge_list.append(_slice_video(first_file,
                                    slice_options,
                                    task_id + "begin.mp4"))
 
-    merge_list.extend([dir_path + video for video in video_files[1:-1]])
+    merge_list.extend([get_full_filename(video, port_id) 
+                      for video in video_files[1:-1]])
 
     if len_video_files >= 2:
-        last_file = dir_path + video_files[len_video_files - 1]
+        last_file = video_files[len_video_files - 1]
         slice_options = get_slice_options(last_file,
                                           start_time,
                                           end_time,
                                           flag=False)
+        last_file = get_full_filename(last_file, port_id)
         merge_list.append(_slice_video(last_file,
                                        slice_options,
                                        task_id + "end.mp4"))
-    dir_path = ROOT_PATH + "livedownload\\"
-    outfile = task_id + ".mp4"
-    _merge_video(task_id, merge_list, dir_path + outfile)
+
+    outfile = ("%s.mp4") % task_id
+    _merge_video(task_id, merge_list, outfile)
 
     sql = ("update task set result='%s' where id = '%s'") % (get_video_url(task_id), task_id)
     CUR.execute(sql)
@@ -99,6 +98,7 @@ def _slice_video(input_file,
     '''
         slice video
     '''
+    outfile = get_slice_dir() + outfile
     target = "ffmpeg -y -i " + input_file + slice_options + " " + outfile
     print target
     os.system(target)
@@ -109,10 +109,12 @@ def _merge_video(task_id, merge_list, outfile):
     '''
     merge video  
     '''
-    outfile_cfg = str(task_id) + ".txt"
+    outfile_cfg = get_download_dir() + str(task_id) + ".txt"
+    outfile = get_download_dir() + outfile
+
     file_object = open(outfile_cfg, 'w')
     for files in merge_list:
-        print files
+        files = files.replace("\\", "\\\\")
         file_object.write("file " + files + "\n")
     file_object.close()
     target = 'ffmpeg -y -f concat -i ' + outfile_cfg + ' -c copy ' + outfile

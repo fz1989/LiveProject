@@ -2,7 +2,7 @@
 #!/usr/bin/env python
 # coding=utf-8
 
-from timeprocess import get_url_prefix
+from common import get_url_prefix
 from common import find_videos
 
 
