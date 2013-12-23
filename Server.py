@@ -1,7 +1,8 @@
 import tornado.ioloop
 import tornado.web
 import json
-from task import *
+from playvideo import *
+from downloadvideo import *
 
 
 class PlayVideoHandler(tornado.web.RequestHandler):
@@ -9,7 +10,6 @@ class PlayVideoHandler(tornado.web.RequestHandler):
         '''
             get the video url 
         '''
-
         start_time = self.get_argument("start_time")
         end_time = self.get_argument("end_time")
         port_id = self.get_argument("port_id")
