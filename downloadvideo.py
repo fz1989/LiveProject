@@ -6,18 +6,37 @@ import hashlib
 from multiprocessing import Process
 from timeprocess import *
 from common import *
+from config import *
 
 
 def get_video_url(task_id):
     '''
         return merge video url
+        Args:
+            task_id: a merge video task's id.
+
+        Returns:
+            A string stands for the merge video url.
+            For example:
+            http://www.test.com/livedownload/3dea08144c0048c62efc6dc002cdf6cc.mp4
     '''
+
     url = HOST_NAME + "/livedownload/" + task_id + ".mp4"
     return url
 
 def _get_video(task_id, start_time, end_time, port_id):
     '''
         merge video
+        Args:
+            task_id: a merge video task's id.
+            start_time: the require video start time.
+            end_time: the require video end time.
+            port_id: the require video port id 
+
+        Returns:
+            A string stands for the merge video url.
+            For example:
+            http://www.test.com/livedownload/3dea08144c0048c62efc6dc002cdf6cc.mp4
     '''
 
     video_files = find_videos(start_time, end_time, port_id)
@@ -76,11 +95,12 @@ def get_slice_options(input_file,
     if flag:
         min_time = min(start_time, input_file[-18:-4])
         max_time = max(start_time, input_file[-18:-4])
-        if min_time == max_time:
-            return input_file
-        slice_options = " -ss " + \
-                        get_second(change_time_format(max_time) -
-                                   change_time_format(min_time))
+        if start_time > input_file[-18:-4]:
+            slice_options = " -ss " + \
+                            get_second(change_time_format(max_time) -
+                                       change_time_format(min_time))
+        else:
+            slice_options = " -t 00:00:00 "
         if single:
             slice_options = slice_options + " -t " + \
                 get_second(change_time_format(end_time) -

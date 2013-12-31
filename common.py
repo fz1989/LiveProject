@@ -4,11 +4,7 @@
 import os
 import sqlite3
 from timeprocess import *
-
-ROOT_PATH = "D:\\live"
-HOST_IP = "219.245.64.30"
-HOST_PORT = "80"
-HOST_NAME = "http://" + HOST_IP + ":" + HOST_PORT
+from config import ROOT_PATH, HOST_NAME
 
 CON = sqlite3.connect("live.db")
 CUR = CON.cursor()
@@ -98,6 +94,19 @@ def get_url_prefix(file_name, port_id):
     file_prefix = file_name.split('.')[0]
     return ("%s/%s/%s/%s/%s/%s/") % (HOST_NAME,
                                     "videos",
+                                    file_prefix[0:4],
+                                    file_prefix[4:6],
+                                    file_prefix[6:8],
+                                    port_id)
+
+def get_download_prefix(file_name, port_id):
+    '''
+        given the short file name and port_id, return the 
+        full url
+    '''
+    file_prefix = file_name.split('.')[0]
+    return ("%s/%s/%s/%s/%s/%s/") % (HOST_NAME,
+                                    "videodownload",
                                     file_prefix[0:4],
                                     file_prefix[4:6],
                                     file_prefix[6:8],

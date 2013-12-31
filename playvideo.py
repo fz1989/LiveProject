@@ -4,7 +4,7 @@
 
 from common import get_url_prefix
 from common import find_videos
-
+from common import get_download_prefix
 
 def find_video_url(start_time, end_time, port_id):
     '''
@@ -13,4 +13,6 @@ def find_video_url(start_time, end_time, port_id):
     video_files = find_videos(start_time, end_time, port_id)
     video_urls = [get_url_prefix(video, port_id) + video 
                   for video in video_files]
+    video_urls.extend([get_download_prefix(video, port_id) + video
+                       for video in video_files])
     return video_urls
