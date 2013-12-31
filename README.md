@@ -17,5 +17,6 @@ A simple live video server, which supports video playing and downloading
 ##use python code
 1. edit `config.cfg` to set the project settings.
 2. run `config.py` to generate `nginx.conf`.
+
 ##use py2exe
 1. just use `mysetup.py` to generate exe.
